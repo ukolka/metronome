@@ -157,6 +157,10 @@ nav a:hover {
    Author's custom styles
    ========================================================================== */
 
+a {
+    text-decoration: none;
+}
+
 #logo {
     width: 2em;
     height: 2em;
