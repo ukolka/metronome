@@ -144,15 +144,14 @@ $(window).load( function () {
             }
             beatsBuffer.push(new Sound(metronomeClickBuffer, lastBeatTime + secondsBetweenBeats * (i + 1)));
         }
-        console.log(beatsBuffer.length, i);
         beatsBuffer.splice(0, i);
-        console.log(beatsBuffer.length, i);
     },
     unSchedule = function () {
         var i;
         for (i = 0; i < lookahead; i += 1) {
             beatsBuffer.pop().stop();
         }
+        clearInterval(rescheduleTimer);
     },
 
     /**
@@ -162,9 +161,19 @@ $(window).load( function () {
     /**
      * Animation
      */
-
+    draw = function () {
+        var currentTime, angle, rotate;
+        if (isPlaying) {
+            currentTime = audioContext.currentTime;
+            angle = (Math.round((((currentTime - startTime) / secondsBetweenBeats) % 1) * 10) - 5) * 2;
+            console.log(angle);
+            rotate = 'rotate (' + angle + ' ' + pendRotOrigin.x + ' ' + pendRotOrigin.y + ')';
+            pendulumWithWeight.setAttribute('transform', rotate);
+        }
+        requestAnimFrame(draw);
+    },
     /**
-     * endo of Animation
+     * end of Animation
      */
 
     /**
@@ -339,4 +348,5 @@ $(window).load( function () {
     });
 
     loadAudio();
+    requestAnimFrame(draw);
 });
