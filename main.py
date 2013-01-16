@@ -13,10 +13,11 @@ class MainPage(webapp2.RequestHandler):
 
 class NotFound(webapp2.RequestHandler):
     def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
+        #self.response.headers['Content-Type'] = 'text/html'
         self.response.status_int = 404
         self.response.status_message = 'Not found'
-        self.response.write('Not Found')
+        template = jinja_environment.get_template('404.html')
+        self.response.write(template.render())
 
 app = webapp2.WSGIApplication([(r'/', MainPage), (r'/.*', NotFound)],
                               debug=True)
