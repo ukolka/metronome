@@ -130,8 +130,23 @@ $(window).load( function () {
         startTime = audioContext.currentTime;
         secondsBetweenBeats = 60 / tempo;
         for (i = 0; i < lookahead; i += 1) {
-            beatsBuffer.push(new Sound(metronomeClickBuffer, startTime + i * secondsBetweenBeats));
+            beatsBuffer.push(new Sound(metronomeClickBuffer, startTime + secondsBetweenBeats * i));
         }
+        // timer is set to 1 sec because in chrome hidden tab it's anyway 1 sec
+        rescheduleTimer = setInterval(reschedule, 1000);
+    },
+    reschedule = function () {
+        var i, currentTime = audioContext.currentTime,
+            lastBeatTime = beatsBuffer[lookahead - 1].playAt;
+        for (i = 0; i < lookahead; i += 1) {
+            if (beatsBuffer[i].playAt > currentTime) {
+                break;
+            }
+            beatsBuffer.push(new Sound(metronomeClickBuffer, lastBeatTime + secondsBetweenBeats * (i + 1)));
+        }
+        console.log(beatsBuffer.length, i);
+        beatsBuffer.splice(0, i);
+        console.log(beatsBuffer.length, i);
     },
     unSchedule = function () {
         var i;
@@ -144,6 +159,13 @@ $(window).load( function () {
      * End of metronome sound
      */
 
+    /**
+     * Animation
+     */
+
+    /**
+     * endo of Animation
+     */
 
     /**
      * Web Audio
@@ -160,6 +182,7 @@ $(window).load( function () {
         this.stop = function () {
             this.source.noteOff(0);
         };
+        this.playAt = playAt;
     },
     loadMetronomeSound = function (url) {
         var request = new XMLHttpRequest();
@@ -271,15 +294,15 @@ $(window).load( function () {
 
     $(metronome).on('mousedown', function (e) {
         e.preventDefault(); // prevents text from being selected
-        dragging = e.target;
+            dragging = e.target;
         });
 
         $(metronome).on('mouseup', function (e) {
         // if the weight was dragged while animated
-        // restart animation with new tempo
-        if (dragging == weight && anim_int !== null) {
-            stop_animation();
-            animate();
+        // stop playing and start it over
+        if (dragging == weight && isPlaying) {
+            play();
+            play();
         }
         dragging = null;
     });
@@ -297,16 +320,20 @@ $(window).load( function () {
         if (diff === 0) {
             return null;
         }
-        tappedTampo = Math.round(1000 / diff * 60);
-        if (tappedTampo >= 40 && tappedTampo <= 208) {
-            tempoDisplay.firstChild.nodeValue = tappedTampo;
+        tappedTempo = Math.round(1000 / diff * 60);
+        if (tappedTempo >= 40 && tappedTempo <= 208) {
+            tempoDisplay.firstChild.nodeValue = tappedTempo;
             tempoDescrDisplay.firstChild.nodeValue =
-            tempoMarking(tappedTampo);
+            tempoMarking(tappedTempo);
             weight.setAttribute('transform', 'translate(0 -' +
-                    scaleY((maxTempo - tappedTampo) *
+                    scaleY((maxTempo - tappedTempo) *
                      (dragStartY - dragEndY) /
                      tempoSteps)
                     + ')');
+            if (isPlaying) {
+                // stop
+                play();
+            }
         }
         prevTapStamp = stamp;
     });
