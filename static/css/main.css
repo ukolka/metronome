@@ -188,6 +188,11 @@ a {
     border-top: 20px solid #7a7a7a;
 }
 
+aside {
+    position: absolute;
+    left: 31%;
+}
+
 .header-container,
 .main aside {
     background: -webkit-linear-gradient(top, #000000, #979797);
