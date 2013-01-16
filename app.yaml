@@ -28,6 +28,7 @@ handlers:
 - url: /(.*\.png)
   static_files: static/\1
   upload: static/(.*\.png)
+  mime_type: image/png
 
 - url: /.*
   script: main.py
