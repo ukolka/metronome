@@ -458,11 +458,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="-154.55372"
-     inkscape:cy="673.86148"
+     inkscape:zoom="1.979899"
+     inkscape:cx="165.23613"
+     inkscape:cy="146.43597"
      inkscape:document-units="px"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="svg2"
      showgrid="true"
      inkscape:snap-smooth-nodes="false"
      inkscape:snap-global="true"
@@ -1089,7 +1089,7 @@
          transform="translate(-1.1530845e-6,-4.895108e-8)" />
       <path
          transform="translate(37.671509,201.40903)"
-         d="m 381.83767,522.0321 a 50.002552,49.497475 0 1 1 -100.00511,0 50.002552,49.497475 0 1 1 100.00511,0 z"
+         d="m 381.83767,522.0321 c 0,27.3367 -22.38691,49.49748 -50.00256,49.49748 -27.61564,0 -50.00255,-22.16078 -50.00255,-49.49748 0,-27.3367 22.38691,-49.49747 50.00255,-49.49747 27.61565,0 50.00256,22.16077 50.00256,49.49747 z"
          sodipodi:ry="49.497475"
          sodipodi:rx="50.002552"
          sodipodi:cy="522.0321"
@@ -1119,7 +1119,7 @@
        sodipodi:cy="626.07782"
        sodipodi:rx="57.07362"
        sodipodi:ry="55.558392"
-       d="m 435.37574,626.07782 a 57.07362,55.558392 0 1 1 -114.14724,0 57.07362,55.558392 0 1 1 114.14724,0 z"
+       d="m 435.37574,626.07782 c 0,30.68405 -25.55273,55.55839 -57.07362,55.55839 -31.52089,0 -57.07362,-24.87434 -57.07362,-55.55839 0,-30.68405 25.55273,-55.55839 57.07362,-55.55839 31.52089,0 57.07362,24.87434 57.07362,55.55839 z"
        transform="translate(-74.751288,-160.61425)" />
     <text
        xml:space="preserve"
@@ -1135,35 +1135,35 @@
     <text
        xml:space="preserve"
        style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
-       x="348.83002"
-       y="743.51654"
+       x="353.3757"
+       y="742.50641"
        id="text3152"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3154"
-         x="348.83002"
-         y="743.51654">bpm</tspan></text>
+         x="353.3757"
+         y="742.50641">bpm</tspan></text>
   </g>
   <text
      xml:space="preserve"
      style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
-     x="70"
-     y="821.67413"
+     x="73.030457"
+     y="822.1792"
      id="text3170"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3172"
-       x="70"
-       y="821.67413">Start</tspan></text>
+       x="73.030457"
+       y="822.1792">Start</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
-     x="240"
-     y="820.24554"
+     x="252.62691"
+     y="819.74048"
      id="text3174"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3176"
-       x="240"
-       y="820.24554">Tap</tspan></text>
+       x="252.62691"
+       y="819.74048">Tap</tspan></text>
 </svg>
