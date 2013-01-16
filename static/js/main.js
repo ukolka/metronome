@@ -161,15 +161,26 @@ $(window).load( function () {
     /**
      * Animation
      */
+    frames = 0,
     draw = function () {
-        var currentTime, angle, rotate;
-        if (isPlaying) {
+        var currentTime, angle, rotate, timeDiff, beatNumber;
+        if (isPlaying && frames % 5 == 0) {
             currentTime = audioContext.currentTime;
-            angle = (Math.round((((currentTime - startTime) / secondsBetweenBeats) % 1) * 10) - 5) * 2;
-            console.log(angle);
+            timeDiff = currentTime - startTime;
+            angle = (Math.round(((timeDiff / secondsBetweenBeats) % 1) * 10) - 5) * 2;
+            beatNumber = Math.floor(timeDiff / secondsBetweenBeats);
+            if (beatNumber % 2 == 0) {
+                angle = -angle;
+            }
+            if (tempo > 120) {
+                angle = 10 - angle < 6 ? 10 : angle;
+                angle = -10 - angle > -6 ? -10 : angle;
+            }
+            angle -= 1;
             rotate = 'rotate (' + angle + ' ' + pendRotOrigin.x + ' ' + pendRotOrigin.y + ')';
             pendulumWithWeight.setAttribute('transform', rotate);
         }
+        frames += 1;
         requestAnimFrame(draw);
     },
     /**
@@ -217,48 +228,6 @@ $(window).load( function () {
      /**
      * End of Web Audio
      */
-        /*
-    //Animation
-    anim_int = null, // Animation interval
-    animate = function () {
-	var x = pendRotOrigin.x,
-	y = pendRotOrigin.y,
-	ang = 0,
-	ang_lim = 10;
-	between_clicks = 1000 / (tempo / 60); // ms in between clicks
-	between_frames = 50;
-	angle_incr = ang_lim * 2 / (between_clicks / between_frames);
-	right = function () {
-	    if (ang >= ang_lim) {
-		metronomeClick.play();
-		window.clearInterval(anim_int);
-		anim_int = window.setInterval(left, between_frames);
-	    }
-	    ang += angle_incr;
-	    move();
-	};
-	left = function () {
-	    if (ang <= -ang_lim) {
-		metronomeClick.play();
-		window.clearInterval(anim_int);
-		anim_int = window.setInterval(right, between_frames);
-	    }
-	    ang -= angle_incr;
-	    move();
-	};
-	move = function () {
-	    var rotate = 'rotate (' + ang + ' ' + x + ' ' + y + ')';
-	    pendulumWithWeight.setAttribute('transform', rotate);
-	};
-	anim_int = window.setInterval(right, between_frames);
-    },
-    stop_animation = function () {
-	var x = pendRotOrigin.x, y = pendRotOrigin.y,
-	rotate = 'rotate(0 ' + x + ' ' + y + ')';
-	window.clearInterval(anim_int);
-	anim_int = null;
-	pendulumWithWeight.setAttribute('transform', rotate);
-    },*/
 
     maxTempo = 208,
     tempoSteps = 168, // from 40 to 208
@@ -339,6 +308,7 @@ $(window).load( function () {
                      (dragStartY - dragEndY) /
                      tempoSteps)
                     + ')');
+            tempo = tappedTempo;
             if (isPlaying) {
                 // stop
                 play();
