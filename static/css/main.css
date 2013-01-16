@@ -196,6 +196,14 @@ a {
     background: -o-linear-gradient(top, #000000, #979797);
 }
 
+
+.footer-container {
+    background: -webkit-linear-gradient(top, #979797, #000000);
+    background: -moz-linear-gradient(top, #979797, #000000);
+    background: -ms-linear-gradient(top, #979797, #000000);
+    background: -o-linear-gradient(top, #979797, #000000);
+}
+
 body {
     background-image: -webkit-radial-gradient(left center, circle cover, #8d8d8d 20%, #2f2f2f 75%);
     background-image: -moz-radial-gradient(center center, circle cover, #8d8d8d 45%, #2f2f2f 75%);
@@ -225,6 +233,10 @@ input[type="range"]::-webkit-slider-thumb {
     -moz-border-radius: 40px;
     border-radius: 40px;
     background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ebf1f6), color-stop(50%,#abd3ee), color-stop(51%,#89c3eb), color-stop(100%,#d5ebfb));
+}
+
+.FlattrButton {
+    float: left;
 }
 
 /* ==========================================================================
