@@ -109,7 +109,7 @@ $(window).load( function () {
      * Metronome sound
      */
     isPlaying = false,
-    lookahead = 20, // lookahead in beats
+    lookahead = 5, // lookahead in beats
     beatsBuffer = [],
     startTime,
     secondsBetweenBeats,
@@ -172,7 +172,7 @@ $(window).load( function () {
             if (beatNumber % 2 == 0) {
                 angle = -angle;
             }
-            if (tempo > 120) {
+            if (tempo > 80) {
                 angle = 10 - angle < 6 ? 10 : angle;
                 angle = -10 - angle > -6 ? -10 : angle;
             }
@@ -193,16 +193,26 @@ $(window).load( function () {
 
     audioContext,
     metronomeClickBuffer,
+    metronomeVolume = document.querySelector('#volume'),
     Sound = function (buffer, playAt) {
         var source = audioContext.createBufferSource();
         source.buffer = buffer;
-        source.connect(audioContext.destination);
+        source = routeSound(source);
+        //source.connect(audioContext.destination);
         source.noteOn(playAt);
         this.source = source;
         this.stop = function () {
             this.source.noteOff(0);
         };
         this.playAt = playAt;
+    },
+    routeSound = function (source) {
+        var volume = metronomeVolume.value,
+            gainNode = audioContext.createGainNode();
+        gainNode.gain.value = volume / 15;
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        return source;
     },
     loadMetronomeSound = function (url) {
         var request = new XMLHttpRequest();
@@ -219,11 +229,11 @@ $(window).load( function () {
     loadAudio = function () {
         try {
             audioContext = new webkitAudioContext();
-            loadMetronomeSound("sound/54406__korgms2000b__metronome-click.wav");
         }
         catch (e) {
-            alert('Web Audio API is not supported in this browser')
+            console.log('Web Audio API is not supported in this browser');
         }
+        loadMetronomeSound("sound/54406__korgms2000b__metronome-click.wav");
     },
      /**
      * End of Web Audio

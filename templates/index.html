@@ -28,7 +28,12 @@
 
         <div class="main-container">
             <div class="main wrapper clearfix">
-	      <embed id="metronome" type="image/svg+xml" src="img/metronome.svg" />
+	            <embed id="metronome" type="image/svg+xml" src="img/metronome.svg" />
+                <form oninput="result.value=parseInt(volume.value)">
+                    <input id="volume" name="volume" type="range" value="100" />
+                    <output name="result">100</output>
+                </form>
+                <output
             </div> <!-- #main -->
         </div> <!-- #main-container -->
 
