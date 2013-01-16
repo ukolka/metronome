@@ -1,3 +1,5 @@
+"use strict";
+
 // requestAnimFrame shim
 window.requestAnimFrame = (function(){
     return  window.requestAnimationFrame ||
@@ -107,13 +109,34 @@ $(window).load( function () {
      * Metronome sound
      */
     isPlaying = false,
+    lookahead = 20, // lookahead in beats
+    beatsBuffer = [],
+    startTime,
+    secondsBetweenBeats,
+    rescheduleTimer,
     play = function () {
         isPlaying = !isPlaying;
 
         if (isPlaying) {
-
+            schedule();
+            return 'Stop';
         } else {
-
+            unSchedule();
+            return 'Start';
+        }
+    },
+    schedule = function () {
+        var i;
+        startTime = audioContext.currentTime;
+        secondsBetweenBeats = 60 / tempo;
+        for (i = 0; i < lookahead; i += 1) {
+            beatsBuffer.push(new Sound(metronomeClickBuffer, startTime + i * secondsBetweenBeats));
+        }
+    },
+    unSchedule = function () {
+        var i;
+        for (i = 0; i < lookahead; i += 1) {
+            beatsBuffer.pop().stop();
         }
     },
 
@@ -262,7 +285,7 @@ $(window).load( function () {
     });
 
     $(startButton).on('click', function (e) {
-        new Sound(metronomeClickBuffer, 0);
+        startButton.firstChild.nodeValue = play();
     });
 
     $(tapButton).on('click', function (e) {
