@@ -11,34 +11,36 @@ window.requestAnimFrame = (function () {
         };
 }());
 
+// wait for everything to load (including svg) before kicking off
 window.addEventListener('load', function () {
     "use strict";
-    var container = document.querySelector('#metronome'),
-        containerHeight = $(container).height(),
+    var container = document.querySelector('#metronome'), // the 'embed' tag that holds the svg
+        containerHeight = $(container).height(), // height of the 'embed' element
         metronome = container.getSVGDocument(), // or .contentDocument
-        svgHeight = parseInt(metronome.rootElement.getAttribute('height'), 10),
-        pendulum = metronome.getElementById('rect6537'),
-        pendulumX = parseInt(pendulum.getAttribute('x'), 10),
-        pendulumY = parseInt(pendulum.getAttribute('y'), 10),
-        pendulumWidth = parseInt(pendulum.getAttribute('width'), 10),
-        pendulumHeight = parseInt(pendulum.getAttribute('height'), 10),
-        weight = metronome.getElementById('path6544'),
-        pendulumWithWeight = metronome.getElementById('g3203'),
+        svgHeight = parseInt(metronome.rootElement.getAttribute('height'), 10), // height of the svg
+        pendulum = metronome.getElementById('rect6537'), // pendulum 'rect' element
+        pendulumX = parseInt(pendulum.getAttribute('x'), 10), // x coordinate of the top left corner of the pendulum
+        pendulumY = parseInt(pendulum.getAttribute('y'), 10), // y coordinate of the top left corner of the pendulum
+        pendulumWidth = parseInt(pendulum.getAttribute('width'), 10), // width of the pendulum
+        pendulumHeight = parseInt(pendulum.getAttribute('height'), 10), // height of the pendulum
+        weight = metronome.getElementById('path6544'), // weight 'path' element
+        pendulumWithWeight = metronome.getElementById('g3203'), // grouped pendulum and weight 'g' element
 
-        // useful
+        // rotation origin for the pendulum and the weight group
         pendRotOrigin = {x: pendulumX + pendulumWidth / 2,
                    y: pendulumY + pendulumHeight},
 
 
         // controls
-        tempoDisplay = metronome.getElementById('tspan3928'),
-        tempoDescrDisplay = metronome.getElementById('tspan7508-2-8-0-1-0-8-7-6'),
+        tempoDisplay = metronome.getElementById('tspan3928'), // tempo numeric display
+        tempoDescrDisplay = metronome.getElementById('tspan7508-2-8-0-1-0-8-7-6'), // tempo name display
         startButton = metronome.getElementById('tspan3172'),
         tapButton = metronome.getElementById('tspan3176'),
 
         /**
-        * According to http://en.wikipedia.org/wiki/Tempo#Basic_tempo_markings
-        */
+         * According to http://en.wikipedia.org/wiki/Tempo#Basic_tempo_markings
+         * For tempo given as an integer returns it's name if any applicable.
+         */
         tempoMarking = function (tempo) {
             var result = '';
             if (tempo <= 19) {
@@ -83,17 +85,22 @@ window.addEventListener('load', function () {
             return result;
         },
 
-        // returns y coordinate scaled in terms of original svg height
+        /**
+         * Returns y coordinate scaled in terms of original svg height.
+         */
         scaleY = function (y) {
             return y / containerHeight * svgHeight;
         },
         /**
         * Web Audio
         */
-
-        audioContext,
-        metronomeClickBuffer,
-        metronomeVolume = document.querySelector('#volume'),
+        audioContext, // webkitAudioContext
+        metronomeClickBuffer, // preloaded sound
+        metronomeVolume = document.querySelector('#volume'), // volume 'range' element
+        /**
+         * Build chain of audioContext nodes starting with source
+         * and ending with audioContext.destination.
+         */
         routeSound = function (source) {
             var volume = metronomeVolume.value,
                 gainNode = audioContext.createGainNode();
@@ -102,11 +109,13 @@ window.addEventListener('load', function () {
             gainNode.connect(audioContext.destination);
             return source;
         },
+        /**
+         * Sound constructor. Helps get information from already scheduled sounds.
+         */
         Sound = function (buffer, playAt) {
             var source = audioContext.createBufferSource();
             source.buffer = buffer;
             source = routeSound(source);
-            //source.connect(audioContext.destination);
             source.noteOn(playAt);
             this.source = source;
             this.stop = function () {
@@ -114,6 +123,9 @@ window.addEventListener('load', function () {
             };
             this.playAt = playAt;
         },
+        /**
+         * Asynchronous load of the sound file.
+         */
         loadMetronomeSound = function (url) {
             var request = new XMLHttpRequest();
             request.open('GET', url, true);
@@ -126,6 +138,9 @@ window.addEventListener('load', function () {
             };
             request.send();
         },
+        /**
+         * Tries to create the audioContext and load the sound.
+         */
         loadAudio = function () {
             var span, text;
             try {
@@ -146,17 +161,22 @@ window.addEventListener('load', function () {
         maxTempo = 208,
         tempoSteps = 168, // from 40 to 208
         // Global current tempo
-        tempo = maxTempo,
+        tempo = maxTempo, // global current tempo
 
         /**
          * Metronome sound
          */
-        isPlaying = false,
+        isPlaying = false, // is metronome currently playing or not
         lookahead = 5, // lookahead in beats
-        beatsBuffer = [],
-        startTime,
-        secondsBetweenBeats,
-        rescheduleTimer,
+        beatsBuffer = [], // stores scheduled beats
+        startTime, // audioContext time of when metronome started
+        secondsBetweenBeats, // distance between beats in seconds
+        rescheduleTimer, // timer id for rescheduilng timeout
+        /**
+         * Passes through scheduled beats.
+         * Cleans beats that already played.
+         * Adds new beats correspondingly.
+         */
         reschedule = function () {
             var i, currentTime = audioContext.currentTime,
                 lastBeatTime = beatsBuffer[lookahead - 1].playAt;
@@ -168,6 +188,9 @@ window.addEventListener('load', function () {
             }
             beatsBuffer.splice(0, i);
         },
+        /**
+         * Creates beats queue. And kicks off rescheduling.
+         */
         schedule = function () {
             var i;
             startTime = audioContext.currentTime;
@@ -178,6 +201,9 @@ window.addEventListener('load', function () {
             // timer is set to 1 sec because in chrome hidden tab it's anyway 1 sec
             rescheduleTimer = setInterval(reschedule, 1000);
         },
+        /**
+         * Clears the queue.
+         */
         unSchedule = function () {
             var i;
             for (i = 0; i < lookahead; i += 1) {
@@ -185,6 +211,10 @@ window.addEventListener('load', function () {
             }
             clearInterval(rescheduleTimer);
         },
+        /**
+         * Starts / stops the metronome.
+         * Is called by the click on the "Start" button.
+         */
         play = function () {
             var result;
             isPlaying = !isPlaying;
@@ -205,36 +235,38 @@ window.addEventListener('load', function () {
         /**
          * Animation
          */
-        frames = 0,
+        frames = 0, // keeps track of current frame number
         draw = function () {
             var currentTime, angle, rotate, timeDiff, beatNumber;
-            if (isPlaying && frames % 5 === 0) {
-                currentTime = audioContext.currentTime;
-                timeDiff = currentTime - startTime;
-                angle = (Math.round(((timeDiff / secondsBetweenBeats) % 1) * 10) - 5) * 2;
+            if (isPlaying && frames % 5 === 0) { // execute every 5th frame if the metronome is playing
+                currentTime = audioContext.currentTime; // get current audio context's time
+                timeDiff = currentTime - startTime; // calculate elapsed time
+                angle = (Math.round(((timeDiff / secondsBetweenBeats) % 1) * 10) - 5) * 2; // make an angle between -10 and 10
                 beatNumber = Math.floor(timeDiff / secondsBetweenBeats);
-                if (beatNumber % 2 === 0) {
+                if (beatNumber % 2 === 0) { // every other beat pendulum goes in the opposite direction
                     angle = -angle;
                 }
-                if (tempo > 80) {
+                if (tempo > 80) { // a bit of black magic to adjust pendulum's amplitude for more than 80 bpm
                     angle = 10 - angle < 6 ? 10 : angle;
                     angle = -10 - angle > -6 ? -10 : angle;
                 }
+                // a dirty little correction for the pendulum's motion to look symmetric
                 angle -= 1;
+                // animate the pendulum and the weight
                 rotate = 'rotate (' + angle + ' ' + pendRotOrigin.x + ' ' + pendRotOrigin.y + ')';
                 pendulumWithWeight.setAttribute('transform', rotate);
             }
             frames += 1;
-            window.requestAnimFrame(draw);
+            window.requestAnimFrame(draw); // continue animation
         },
         /**
          * end of Animation
          */
 
         // Dragging of the weight.
-        dragging = null,
-        dragStartY = containerHeight * 0.67243,
-        dragEndY = containerHeight * 0.065,
+        dragging = null, // is weight being dragged
+        dragStartY = containerHeight * 0.67243, // lower bound of weight dragging
+        dragEndY = containerHeight * 0.065, // upper bound of weight dragging
 
         // Previous tap timestamp
         prevTapStamp = null;
@@ -244,7 +276,7 @@ window.addEventListener('load', function () {
     startButton.setAttribute('cursor', 'pointer');
     tapButton.setAttribute('cursor', 'pointer');
 
-
+    // Set callbacks
     $(metronome).on('mousemove', function (e) {
         var delta_y;
         if (dragging !== null) {
@@ -280,10 +312,12 @@ window.addEventListener('load', function () {
         dragging = null;
     });
 
-    $(startButton).on('click', function (e) {
+    // starting / stoping the metronome
+    $(startButton).on('click', function () {
         startButton.firstChild.nodeValue = play();
     });
 
+    // tapping the tempo in
     $(tapButton).on('click', function (e) {
         var diff, stamp = new Date().getTime(),
             tappedTempo;
@@ -302,6 +336,7 @@ window.addEventListener('load', function () {
                      (dragStartY - dragEndY) /
                      tempoSteps)
                     + ')');
+            // update the global tempo
             tempo = tappedTempo;
             if (isPlaying) {
                 // stop
@@ -315,6 +350,7 @@ window.addEventListener('load', function () {
     window.requestAnimFrame(draw);
 });
 
+// the why, how to and about toggling
 $(document).ready(function () {
     "use strict";
     $('a').click(function () {
