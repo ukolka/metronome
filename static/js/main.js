@@ -161,6 +161,7 @@ window.addEventListener('load', function () {
 
         // Tempo settings
         maxTempo = 208,
+        minTempo = 40,
         tempoSteps = 168, // from 40 to 208
         // Global current tempo
         tempo = maxTempo, // global current tempo
@@ -271,7 +272,23 @@ window.addEventListener('load', function () {
         dragEndY = containerHeight * 0.065, // upper bound of weight dragging
 
         // Previous tap timestamp
-        prevTapStamp = null;
+        prevTapStamp = null,
+
+        /**
+         * Update metronome with new tempo.
+         */
+        reflectTempoManipulation = function () {
+            tempoDisplay.firstChild.nodeValue = tempo;
+            tempoDescrDisplay.firstChild.nodeValue = tempoMarking(tempo);
+            weight.setAttribute('transform', 'translate(0 -' +
+                scaleY((maxTempo - tempo) *
+                    (dragStartY - dragEndY) /
+                    tempoSteps)
+                + ')');
+        },
+        isValidTempo = function (bpm) {
+            return bpm >= minTempo && bpm <= maxTempo;
+        };
 
     // Set cursors
     weight.setAttribute('cursor', 'move');
@@ -330,16 +347,10 @@ window.addEventListener('load', function () {
             return null;
         }
         tappedTempo = Math.round(1000 / diff * 60);
-        if (tappedTempo >= 40 && tappedTempo <= 208) {
-            tempoDisplay.firstChild.nodeValue = tappedTempo;
-            tempoDescrDisplay.firstChild.nodeValue = tempoMarking(tappedTempo);
-            weight.setAttribute('transform', 'translate(0 -' +
-                    scaleY((maxTempo - tappedTempo) *
-                     (dragStartY - dragEndY) /
-                     tempoSteps)
-                    + ')');
+        if (isValidTempo(tappedTempo)) {
             // update the global tempo
             tempo = tappedTempo;
+            reflectTempoManipulation();
             if (isPlaying) {
                 // stop
                 play();
@@ -354,13 +365,29 @@ window.addEventListener('load', function () {
 
     bpm.addEventListener('change', function () {
         tempo = parseInt(bpm.value, 10);
-        tempoDisplay.firstChild.nodeValue = tempo;
-        tempoDescrDisplay.firstChild.nodeValue = tempoMarking(tempo);
-        weight.setAttribute('transform', 'translate(0 -' +
-            scaleY((maxTempo - tempo) *
-                (dragStartY - dragEndY) /
-                tempoSteps)
-            + ')');
+        reflectTempoManipulation();
+    });
+
+    document.addEventListener('keydown', function (event) {
+        var newBpm;
+        if (event.ctrlKey === true) {
+            event.preventDefault();
+            switch (event.keyCode) {
+            // arrow down
+            case 40:
+                newBpm = parseInt(bpm.value, 10) - parseInt(step.value, 10);
+                break;
+            // arrow up
+            case 38:
+                newBpm = parseInt(bpm.value, 10) + parseInt(step.value, 10);
+                break;
+            }
+            if (isValidTempo(newBpm)) {
+                bpm.value = newBpm;
+                tempo = bpm.value;
+                reflectTempoManipulation();
+            }
+        }
     });
 
     loadAudio();
