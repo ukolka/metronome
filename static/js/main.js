@@ -285,6 +285,7 @@ window.addEventListener('load', function () {
                     (dragStartY - dragEndY) /
                     tempoSteps)
                 + ')');
+            bpm.value = tempo;
         },
         isValidTempo = function (bpm) {
             return bpm >= minTempo && bpm <= maxTempo;
@@ -303,14 +304,10 @@ window.addEventListener('load', function () {
             if (dragging === weight) {
                 if (e.pageY > dragEndY && e.pageY < dragStartY) {
                     delta_y = e.pageY - dragStartY;
-                    weight.setAttribute('transform', 'translate(0 ' +
-                            scaleY(delta_y)
-                            + ')');
                     tempo = Math.round(maxTempo + tempoSteps *
-                               (delta_y /
+                        (delta_y /
                             (dragStartY - dragEndY)));
-                    tempoDisplay.firstChild.nodeValue = tempo;
-                    tempoDescrDisplay.firstChild.nodeValue = tempoMarking(tempo);
+                    reflectTempoManipulation();
                 }
             }
         }
