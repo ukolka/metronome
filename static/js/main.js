@@ -368,6 +368,9 @@ window.addEventListener('load', function () {
         reflectTempoManipulation();
     });
 
+    /**
+     * Bind hot keys.
+     */
     document.addEventListener('keydown', function (event) {
         var newBpm;
         if (event.ctrlKey === true) {
