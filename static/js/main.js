@@ -374,7 +374,6 @@ window.addEventListener('load', function () {
     document.addEventListener('keydown', function (event) {
         var newBpm;
         if (event.ctrlKey === true) {
-            event.preventDefault();
             switch (event.keyCode) {
             // arrow down
             case 40:
@@ -386,6 +385,7 @@ window.addEventListener('load', function () {
                 break;
             }
             if (isValidTempo(newBpm)) {
+                event.preventDefault();
                 bpm.value = newBpm;
                 tempo = bpm.value;
                 reflectTempoManipulation();
@@ -406,9 +406,8 @@ window.addEventListener('load', function () {
         i,
         l,
         toggleAsides = function (e) {
-            e.preventDefault();
             var id = this.dataset.id, i, l;
-            if (id.length > 0) {
+            if (id !== undefined) {
                 for (i = 0, l = asides.length; i < l; i += 1) {
                     if (asides[i].id !== id) {
                         asides[i].style.display = 'none';
@@ -425,7 +424,6 @@ window.addEventListener('load', function () {
      * Hide asides if user clicked elsewhere on the page.
      */
     body.addEventListener('click', function (e) {
-        e.preventDefault();
         if (e.target.tagName !== 'ASIDE' && e.target.parentNode.tagName !== 'ASIDE'
                 && e.target.tagName !== 'A') {
             for (i = 0, l = asides.length; i < l; i += 1) {
