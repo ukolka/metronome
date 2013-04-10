@@ -244,6 +244,33 @@ input[type="range"]::-webkit-slider-thumb {
     float: left;
 }
 
+/* ===========================================
+    Controls
+    ==============================================*/
+
+.controls {
+    float: right;
+    color: #ffffff;
+}
+
+.controls ul {
+    list-style: none;
+}
+
+.controls label {
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+.controls input {
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -ms-border-radius: 6px;
+    border-radius: 6px;
+    text-align: center;
+    background-color: #666666;
+}
+
 /* ==========================================================================
    Media Queries
    ========================================================================== */

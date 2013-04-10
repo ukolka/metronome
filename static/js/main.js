@@ -15,7 +15,7 @@ window.requestAnimFrame = (function () {
 window.addEventListener('load', function () {
     "use strict";
     var container = document.querySelector('#metronome'), // the 'embed' tag that holds the svg
-        containerHeight = $(container).height(), // height of the 'embed' element
+        containerHeight = container.clientHeight, // height of the 'embed' element
         metronome = container.getSVGDocument(), // or .contentDocument
         svgHeight = parseInt(metronome.rootElement.getAttribute('height'), 10), // height of the svg
         pendulum = metronome.getElementById('rect6537'), // pendulum 'rect' element
@@ -32,10 +32,12 @@ window.addEventListener('load', function () {
 
 
         // controls
-        tempoDisplay = metronome.getElementById('tspan3928'), // tempo numeric display
-        tempoDescrDisplay = metronome.getElementById('tspan7508-2-8-0-1-0-8-7-6'), // tempo name display
-        startButton = metronome.getElementById('tspan3172'),
-        tapButton = metronome.getElementById('tspan3176'),
+        tempoDisplay = metronome.querySelector('#tspan3928'), // tempo numeric display
+        tempoDescrDisplay = metronome.querySelector('#tspan7508-2-8-0-1-0-8-7-6'), // tempo name display
+        startButton = metronome.querySelector('#tspan3172'),
+        tapButton = metronome.querySelector('#tspan3176'),
+        bpm = document.querySelector('#bpm'),
+        step = document.querySelector('#step'),
 
         /**
          * According to http://en.wikipedia.org/wiki/Tempo#Basic_tempo_markings
@@ -277,7 +279,7 @@ window.addEventListener('load', function () {
     tapButton.setAttribute('cursor', 'pointer');
 
     // Set callbacks
-    $(metronome).on('mousemove', function (e) {
+    metronome.addEventListener('mousemove', function (e) {
         var delta_y;
         if (dragging !== null) {
             // dragging weight
@@ -297,12 +299,12 @@ window.addEventListener('load', function () {
         }
     });
 
-    $(metronome).on('mousedown', function (e) {
+    metronome.addEventListener('mousedown', function (e) {
         e.preventDefault(); // prevents text from being selected
         dragging = e.target;
     });
 
-    $(metronome).on('mouseup', function (e) {
+    metronome.addEventListener('mouseup', function (e) {
         // if the weight was dragged while animated
         // stop playing and start it over
         if (dragging === weight && isPlaying) {
@@ -313,12 +315,12 @@ window.addEventListener('load', function () {
     });
 
     // starting / stoping the metronome
-    $(startButton).on('click', function () {
+    startButton.addEventListener('click', function () {
         startButton.firstChild.nodeValue = play();
     });
 
     // tapping the tempo in
-    $(tapButton).on('click', function (e) {
+    tapButton.addEventListener('click', function (e) {
         var diff, stamp = new Date().getTime(),
             tappedTempo;
         prevTapStamp = prevTapStamp || stamp;
@@ -346,18 +348,61 @@ window.addEventListener('load', function () {
         prevTapStamp = stamp;
     });
 
+    step.addEventListener('change', function () {
+        bpm.step = this.value;
+    });
+
+    bpm.addEventListener('change', function () {
+        tempo = parseInt(bpm.value, 10);
+        tempoDisplay.firstChild.nodeValue = tempo;
+        tempoDescrDisplay.firstChild.nodeValue = tempoMarking(tempo);
+        weight.setAttribute('transform', 'translate(0 -' +
+            scaleY((maxTempo - tempo) *
+                (dragStartY - dragEndY) /
+                tempoSteps)
+            + ')');
+    });
+
     loadAudio();
     window.requestAnimFrame(draw);
 });
 
 // the why, how to and about toggling
-$(document).ready(function () {
+window.addEventListener('load', function () {
     "use strict";
-    $('a').click(function () {
-        var id = $(this).data().id;
-        if (id.length > 0) {
-            $('aside').not('#' + id).hide();
-            $('#' + id).toggle();
+    var a = document.querySelectorAll('a'),
+        asides = document.querySelectorAll('aside'),
+        body = document.querySelector('body'),
+        i,
+        l,
+        toggleAsides = function (e) {
+            e.preventDefault();
+            var id = this.dataset.id, i, l;
+            if (id.length > 0) {
+                for (i = 0, l = asides.length; i < l; i += 1) {
+                    if (asides[i].id !== id) {
+                        asides[i].style.display = 'none';
+                    } else {
+                        asides[i].style.display = asides[i].style.display === 'none' ? 'block' : 'none';
+                    }
+                }
+            }
+        };
+    for (i = 0, l = a.length; i < l; i += 1) {
+        a[i].addEventListener('click', toggleAsides);
+    }
+    /**
+     * Hide asides if user clicked elsewhere on the page.
+     */
+    body.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (e.target.tagName !== 'ASIDE' && e.target.parentNode.tagName !== 'ASIDE'
+                && e.target.tagName !== 'A') {
+            for (i = 0, l = asides.length; i < l; i += 1) {
+                if (asides[i].style.display === 'block') {
+                    asides[i].style.display = 'none';
+                }
+            }
         }
     });
 });
