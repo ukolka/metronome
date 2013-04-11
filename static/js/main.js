@@ -363,6 +363,12 @@ window.addEventListener('load', function () {
     bpm.addEventListener('change', function () {
         tempo = parseInt(bpm.value, 10);
         reflectTempoManipulation();
+        if (isPlaying) {
+            // stop
+            play();
+            // start
+            play();
+        }
     });
 
     /**
