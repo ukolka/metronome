@@ -357,17 +357,22 @@ window.addEventListener('load', function () {
     });
 
     step.addEventListener('change', function () {
-        bpm.step = this.value;
+        var step = parseInt(this.value, 10);
+        if (step < 50 && step > 0) {
+            bpm.step = this.value;
+        }
     });
 
     bpm.addEventListener('change', function () {
         tempo = parseInt(bpm.value, 10);
-        reflectTempoManipulation();
-        if (isPlaying) {
-            // stop
-            play();
-            // start
-            play();
+        if (isValidTempo(tempo)) {
+            reflectTempoManipulation();
+            if (isPlaying) {
+                // stop
+                play();
+                // start
+                play();
+            }
         }
     });
 
